@@ -316,6 +316,8 @@ class SingleSentenceClassificationProcessor(DataProcessor):
             )
 
             if self.mode == "classification":
+                print("example.label is: ",example.label)
+                print("label map is: ",label_map)
                 label = label_map[example.label]
             elif self.mode == "regression":
                 label = float(example.label)
