@@ -131,11 +131,11 @@ class DataProcessor(object):
         """Reads our BoolQ json file."""
         #create list of lists to hold our boolQ data
         json_data = []
-        json_data.append(['question','passage','idx','label'])
+        #json_data.append(['question','passage','idx','label'])
         
         for line in open(input_file, 'r'):
             json_line = json.loads(line)
-            json_list = [json_line.get('idx'),json_line.get('question'),json_line.get('passage'),int(json_line.get('label'))]
+            json_list = [json_line.get('idx'),json_line.get('question'),json_line.get('passage'),json_line.get('label')]
             json_data.append(json_list)
         
         return json_data
