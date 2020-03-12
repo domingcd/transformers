@@ -35,7 +35,7 @@ def glue_convert_examples_to_features(
     max_length=512,
     task=None,
     label_list=None,
-    output_mode='classification',
+    output_mode=None,
     pad_on_left=False,
     pad_token=0,
     pad_token_segment_id=0,
@@ -76,6 +76,7 @@ def glue_convert_examples_to_features(
         if output_mode is None:
             output_mode = glue_output_modes[task]
             logger.info("Using output mode %s for task %s" % (output_mode, task))
+            print("Using output mode %s for task %s" % (output_mode, task))
 
     label_map = {label: i for i, label in enumerate(label_list)}
 
@@ -118,6 +119,7 @@ def glue_convert_examples_to_features(
         )
 
         if output_mode == "classification":
+            print('example.label is: ',)
             label = label_map[example.label]
         elif output_mode == "regression":
             label = float(example.label)
