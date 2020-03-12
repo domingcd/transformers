@@ -76,7 +76,6 @@ def glue_convert_examples_to_features(
         if output_mode is None:
             output_mode = glue_output_modes[task]
             logger.info("Using output mode %s for task %s" % (output_mode, task))
-            print("Using output mode %s for task %s" % (output_mode, task))
 
     label_map = {label: i for i, label in enumerate(label_list)}
 
@@ -119,8 +118,6 @@ def glue_convert_examples_to_features(
         )
 
         if output_mode == "classification":
-            #print('example.label is: ',example.label)
-            #print('label map is: ',label_map)
             label = label_map[example.label]
         elif output_mode == "regression":
             label = float(example.label)
@@ -519,6 +516,20 @@ class WnliProcessor(DataProcessor):
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
         return examples
     
+
+@classmethod 
+def _read_boolq_json(cls, input_file, quotechar=None):
+    """Reads our BoolQ json file."""
+    #create list of lists to hold our boolQ data
+    json_data = []
+    #json_data.append(['question','passage','idx','label'])
+        
+    for line in open(input_file, 'r'):
+        json_line = json.loads(line)
+        json_list = [json_line.get('idx'),json_line.get('question'),json_line.get('passage'),json_line.get('label')]
+        json_data.append(json_list)
+        
+    return json_data
     
 class BoolqProcessor(DataProcessor):
     """Processor for the BoolQ data set (GLUE version)."""
@@ -534,11 +545,11 @@ class BoolqProcessor(DataProcessor):
     
     def get_train_examples(self, data_dir):
         """See base class."""
-        return self._create_examples(self._read_boolq_json(os.path.join(data_dir, "train.jsonl")), "train")
+        return self._create_examples(_read_boolq_json(os.path.join(data_dir, "train.jsonl")), "train")
 
     def get_dev_examples(self, data_dir):
         """See base class."""
-        return self._create_examples(self._read_boolq_json(os.path.join(data_dir, "val.jsonl")), "dev")
+        return self._create_examples(_read_boolq_json(os.path.join(data_dir, "val.jsonl")), "dev")
 
     def get_labels(self):
         """See base class."""
