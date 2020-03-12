@@ -547,10 +547,10 @@ class BoolqProcessor(DataProcessor):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
-            if i == 0:
-                continue
-            guid = "%s-%s" % (set_type, line[0])
-            #guid = line[0]
+            #if i == 0:
+            #    continue
+            #guid = "%s-%s" % (set_type, line[0])
+            guid = line[0]
             text_a = line[1]
             text_b = line[2]
             label = line[3]
