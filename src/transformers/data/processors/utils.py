@@ -125,6 +125,20 @@ class DataProcessor(object):
         """Reads a tab separated value file."""
         with open(input_file, "r", encoding="utf-8-sig") as f:
             return list(csv.reader(f, delimiter="\t", quotechar=quotechar))
+        
+    @classmethod 
+    def _read_boolq_json(cls, input_file, quotechar=None):
+        """Reads our BoolQ json file."""
+        #create list of lists to hold our boolQ data
+        json_data = []
+        #json_data.append(['question','passage','idx','label'])
+        
+        for line in open(input_file, 'r'):
+            json_line = json.loads(line)
+            json_list = [json_line.get('question'),json_line.get('passage'),json_line.get('idx'),json_line.get('label')]
+            json_data.append(json_list)
+        
+        return json_data
 
 
 class SingleSentenceClassificationProcessor(DataProcessor):
