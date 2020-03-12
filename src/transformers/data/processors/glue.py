@@ -119,8 +119,8 @@ def glue_convert_examples_to_features(
         )
 
         if output_mode == "classification":
-            print('example.label is: ',example.label)
-            print('label map is: ',label_map)
+            #print('example.label is: ',example.label)
+            #print('label map is: ',label_map)
             label = label_map[example.label]
         elif output_mode == "regression":
             label = float(example.label)
