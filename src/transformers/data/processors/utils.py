@@ -135,7 +135,7 @@ class DataProcessor(object):
         
         for line in open(input_file, 'r'):
             json_line = json.loads(line)
-            json_list = [json_line.get('idx'),json_line.get('question'),json_line.get('passage'),json_line.get('label')]
+            json_list = [json_line.get('idx'),json_line.get('question'),json_line.get('passage'),int(json_line.get('label'))]
             json_data.append(json_list)
         
         return json_data
