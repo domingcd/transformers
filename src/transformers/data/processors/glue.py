@@ -35,7 +35,7 @@ def glue_convert_examples_to_features(
     max_length=512,
     task=None,
     label_list=None,
-    output_mode=None,
+    output_mode='classification',
     pad_on_left=False,
     pad_token=0,
     pad_token_segment_id=0,
