@@ -547,8 +547,8 @@ class BoolqProcessor(DataProcessor):
         for (i, line) in enumerate(lines):
             #if i == 0:
             #    continue
-            #guid = "%s-%s" % (set_type, line[0])
-            guid = line[0]
+            guid = "%s-%s" % (set_type, line[0])
+            #guid = line[0]
             text_a = line[1]
             text_b = line[2]
             label = line[3]
