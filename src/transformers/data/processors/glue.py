@@ -576,7 +576,7 @@ class BACProcessor(DataProcessor):
         """See base class."""
         return InputExample(
             tensor_dict["idx"].numpy(),
-            tensor_dict["blog_text"].numpy().decode("utf-8"),
+            tensor_dict["text"].numpy().decode("utf-8"),
             str(tensor_dict["label"].numpy()),
         )
 
