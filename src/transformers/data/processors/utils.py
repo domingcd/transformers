@@ -15,12 +15,14 @@
 # limitations under the License.
 
 import copy
+import sys
 import csv
 import json
 import logging
 
 from ...file_utils import is_tf_available, is_torch_available
 
+csv.field_size_limit(sys.maxsize)
 
 logger = logging.getLogger(__name__)
 
