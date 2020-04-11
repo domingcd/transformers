@@ -599,9 +599,9 @@ class BACProcessor(DataProcessor):
             if i == 0:
                 continue
             guid = "%s-%s" % (set_type, line[0])
-            text = line[1]
+            text_a = line[1]
             label = line[-1]
-            examples.append(InputExample(guid=guid, text=text, label=label))
+            examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
         return examples
 
 
