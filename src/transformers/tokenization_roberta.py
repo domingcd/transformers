@@ -17,8 +17,6 @@
 
 import logging
 from typing import List, Optional
-
-from tokenizers import AddedToken
 from tokenizers.processors import RobertaProcessing
 
 from .tokenization_gpt2 import GPT2Tokenizer, GPT2TokenizerFast
@@ -296,8 +294,6 @@ class RobertaTokenizerFast(GPT2TokenizerFast):
 
     @PreTrainedTokenizer.mask_token.setter
     def mask_token(self, value):
-        if not isinstance(value, AddedToken):
-            value = AddedToken(value, lstrip=True)
 
         self._mask_token = str(value)
         self.tokenizer.add_special_tokens([value])
