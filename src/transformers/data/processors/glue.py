@@ -679,7 +679,7 @@ glue_tasks_num_labels = {
     "wnli": 2,
     "boolq": 2,
     "bac": 3,
-    "bac_gender":2
+    "bac_gender": 2
 }
 
 glue_processors = {
