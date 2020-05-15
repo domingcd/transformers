@@ -270,8 +270,6 @@ class SpecialTokensMixin:
             if key in self.SPECIAL_TOKENS_ATTRIBUTES:
                 if key == "additional_special_tokens":
                     assert isinstance(value, (list, tuple)) and all(isinstance(t, str) for t in value)
-                elif isinstance(value, AddedToken):
-                    setattr(self, key, str(value))
                 elif isinstance(value, str):
                     setattr(self, key, value)
                 else:
@@ -1991,11 +1989,6 @@ class PreTrainedTokenizerFast(PreTrainedTokenizer):
 
     def convert_tokens_to_string(self, tokens: List[int], skip_special_tokens: bool = False) -> str:
         return self._tokenizer.decode(tokens, skip_special_tokens)
-
-    def add_tokens(self, new_tokens: List[Union[str, AddedToken]]) -> int:
-        if isinstance(new_tokens, str):
-            new_tokens = [new_tokens]
-        return self._tokenizer.add_tokens(new_tokens)
 
     def add_special_tokens(self, special_tokens_dict: dict) -> int:
         added = super().add_special_tokens(special_tokens_dict)
