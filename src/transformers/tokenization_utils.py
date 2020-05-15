@@ -26,7 +26,7 @@ from collections import UserDict, defaultdict
 from contextlib import contextmanager
 from typing import List, Optional, Sequence, Tuple, Union
 
-from tokenizers import AddedToken, Encoding
+from tokenizers import Encoding
 from tokenizers.decoders import Decoder
 from tokenizers.implementations import BaseTokenizer
 
