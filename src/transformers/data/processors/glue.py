@@ -17,11 +17,8 @@
 
 import logging
 import os
-<<<<<<< HEAD
 import json
-=======
 from typing import List, Optional, Union
->>>>>>> upstream/master
 
 from ...file_utils import is_tf_available
 from ...tokenization_utils import PreTrainedTokenizer
