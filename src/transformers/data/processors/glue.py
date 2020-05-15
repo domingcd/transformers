@@ -17,9 +17,14 @@
 
 import logging
 import os
+<<<<<<< HEAD
 import json
+=======
+from typing import List, Optional, Union
+>>>>>>> upstream/master
 
 from ...file_utils import is_tf_available
+from ...tokenization_utils import PreTrainedTokenizer
 from .utils import DataProcessor, InputExample, InputFeatures
 
 
@@ -30,16 +35,12 @@ logger = logging.getLogger(__name__)
 
 
 def glue_convert_examples_to_features(
-    examples,
-    tokenizer,
-    max_length=512,
+    examples: Union[List[InputExample], "tf.data.Dataset"],
+    tokenizer: PreTrainedTokenizer,
+    max_length: Optional[int] = None,
     task=None,
     label_list=None,
     output_mode=None,
-    pad_on_left=False,
-    pad_token=0,
-    pad_token_segment_id=0,
-    mask_padding_with_zero=True,
 ):
     """
     Loads a data file into a list of ``InputFeatures``
@@ -47,16 +48,10 @@ def glue_convert_examples_to_features(
     Args:
         examples: List of ``InputExamples`` or ``tf.data.Dataset`` containing the examples.
         tokenizer: Instance of a tokenizer that will tokenize the examples
-        max_length: Maximum example length
+        max_length: Maximum example length. Defaults to the tokenizer's max_len
         task: GLUE task
         label_list: List of labels. Can be obtained from the processor using the ``processor.get_labels()`` method
         output_mode: String indicating the output mode. Either ``regression`` or ``classification``
-        pad_on_left: If set to ``True``, the examples will be padded on the left rather than on the right (default)
-        pad_token: Padding token
-        pad_token_segment_id: The segment ID for the padding token (It is usually 0, but can vary such as for XLNet where it is 4)
-        mask_padding_with_zero: If set to ``True``, the attention mask will be filled by ``1`` for actual values
-            and by ``0`` for padded values. If set to ``False``, inverts it (``1`` for padded values, ``0`` for
-            actual values)
 
     Returns:
         If the ``examples`` input is a ``tf.data.Dataset``, will return a ``tf.data.Dataset``
@@ -64,19 +59,16 @@ def glue_convert_examples_to_features(
         a list of task-specific ``InputFeatures`` which can be fed to the model.
 
     """
-    is_tf_dataset = False
     if is_tf_available() and isinstance(examples, tf.data.Dataset):
-        is_tf_dataset = True
+        if task is None:
+            raise ValueError("When calling glue_convert_examples_to_features from TF, the task parameter is required.")
+        return _tf_glue_convert_examples_to_features(examples, tokenizer, max_length=max_length, task=task)
+    return _glue_convert_examples_to_features(
+        examples, tokenizer, max_length=max_length, task=task, label_list=label_list, output_mode=output_mode
+    )
 
-    if task is not None:
-        processor = glue_processors[task]()
-        if label_list is None:
-            label_list = processor.get_labels()
-            logger.info("Using label list %s for task %s" % (label_list, task))
-        if output_mode is None:
-            output_mode = glue_output_modes[task]
-            logger.info("Using output mode %s for task %s" % (output_mode, task))
 
+<<<<<<< HEAD
     label_map = {label: i for i, label in enumerate(label_list)}
 
     features = []
@@ -116,29 +108,21 @@ def glue_convert_examples_to_features(
         assert len(token_type_ids) == max_length, "Error with input length {} vs {}".format(
             len(token_type_ids), max_length
         )
+=======
+if is_tf_available():
+>>>>>>> upstream/master
 
-        if output_mode == "classification":
-            label = label_map[example.label]
-        elif output_mode == "regression":
-            label = float(example.label)
-        else:
-            raise KeyError(output_mode)
+    def _tf_glue_convert_examples_to_features(
+        examples: tf.data.Dataset, tokenizer: PreTrainedTokenizer, task=str, max_length: Optional[int] = None,
+    ) -> tf.data.Dataset:
+        """
+        Returns:
+            A ``tf.data.Dataset`` containing the task-specific features.
 
-        if ex_index < 5:
-            logger.info("*** Example ***")
-            logger.info("guid: %s" % (example.guid))
-            logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
-            logger.info("attention_mask: %s" % " ".join([str(x) for x in attention_mask]))
-            logger.info("token_type_ids: %s" % " ".join([str(x) for x in token_type_ids]))
-            logger.info("label: %s (id = %d)" % (example.label, label))
-
-        features.append(
-            InputFeatures(
-                input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids, label=label
-            )
-        )
-
-    if is_tf_available() and is_tf_dataset:
+        """
+        processor = glue_processors[task]()
+        examples = [processor.tfds_map(processor.get_example_from_tensor_dict(example)) for example in examples]
+        features = glue_convert_examples_to_features(examples, tokenizer, max_length=max_length, task=task)
 
         def gen():
             for ex in features:
@@ -163,6 +147,54 @@ def glue_convert_examples_to_features(
                 tf.TensorShape([]),
             ),
         )
+
+
+def _glue_convert_examples_to_features(
+    examples: List[InputExample],
+    tokenizer: PreTrainedTokenizer,
+    max_length: Optional[int] = None,
+    task=None,
+    label_list=None,
+    output_mode=None,
+):
+    if max_length is None:
+        max_length = tokenizer.max_len
+
+    if task is not None:
+        processor = glue_processors[task]()
+        if label_list is None:
+            label_list = processor.get_labels()
+            logger.info("Using label list %s for task %s" % (label_list, task))
+        if output_mode is None:
+            output_mode = glue_output_modes[task]
+            logger.info("Using output mode %s for task %s" % (output_mode, task))
+
+    label_map = {label: i for i, label in enumerate(label_list)}
+
+    def label_from_example(example: InputExample) -> Union[int, float]:
+        if output_mode == "classification":
+            return label_map[example.label]
+        elif output_mode == "regression":
+            return float(example.label)
+        raise KeyError(output_mode)
+
+    labels = [label_from_example(example) for example in examples]
+
+    batch_encoding = tokenizer.batch_encode_plus(
+        [(example.text_a, example.text_b) for example in examples], max_length=max_length, pad_to_max_length=True,
+    )
+
+    features = []
+    for i in range(len(examples)):
+        inputs = {k: batch_encoding[k][i] for k in batch_encoding}
+
+        feature = InputFeatures(**inputs, label=labels[i])
+        features.append(feature)
+
+    for i, example in enumerate(examples[:5]):
+        logger.info("*** Example ***")
+        logger.info("guid: %s" % (example.guid))
+        logger.info("features: %s" % features[i])
 
     return features
 
@@ -603,6 +635,42 @@ class BACProcessor(DataProcessor):
             label = line[-1]
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
         return examples
+    
+
+class BACGenderProcessor(DataProcessor):
+    """Processor for the blog authorship corpus data set."""
+
+    def get_example_from_tensor_dict(self, tensor_dict):
+        """See base class."""
+        return InputExample(
+            tensor_dict["idx"].numpy(),
+            tensor_dict["text"].numpy().decode("utf-8"),
+            str(tensor_dict["label"].numpy()),
+        )
+
+    def get_train_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(self._read_tsv(os.path.join(data_dir, "bac_gender_train.tsv")), "train")
+
+    def get_dev_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(self._read_tsv(os.path.join(data_dir, "bac_gender_val.tsv")), "dev")
+
+    def get_labels(self):
+        """See base class."""
+        return ["0", "1"]
+
+    def _create_examples(self, lines, set_type):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, line) in enumerate(lines):
+            if i == 0:
+                continue
+            guid = "%s-%s" % (set_type, line[0])
+            text_a = line[1]
+            label = line[-1]
+            examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+        return examples
 
 
 glue_tasks_num_labels = {
@@ -617,6 +685,7 @@ glue_tasks_num_labels = {
     "wnli": 2,
     "boolq": 2,
     "bac": 3,
+    "bac_gender":2
 }
 
 glue_processors = {
@@ -631,7 +700,8 @@ glue_processors = {
     "rte": RteProcessor,
     "wnli": WnliProcessor,
     "boolq": BoolqProcessor,
-    "bac": BACProcessor
+    "bac": BACProcessor,
+    "bac_gender": BACGenderProcessor
 }
 
 glue_output_modes = {
@@ -647,4 +717,5 @@ glue_output_modes = {
     "wnli": "classification",
     "boolq": "classification",
     "bac": "classification",
+    "bac_gender": "classification",
 }
