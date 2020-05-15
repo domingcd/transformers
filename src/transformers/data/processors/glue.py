@@ -64,8 +64,6 @@ def glue_convert_examples_to_features(
         examples, tokenizer, max_length=max_length, task=task, label_list=label_list, output_mode=output_mode
     )
 
-
-<<<<<<< HEAD
     label_map = {label: i for i, label in enumerate(label_list)}
 
     features = []
@@ -105,9 +103,8 @@ def glue_convert_examples_to_features(
         assert len(token_type_ids) == max_length, "Error with input length {} vs {}".format(
             len(token_type_ids), max_length
         )
-=======
+
 if is_tf_available():
->>>>>>> upstream/master
 
     def _tf_glue_convert_examples_to_features(
         examples: tf.data.Dataset, tokenizer: PreTrainedTokenizer, task=str, max_length: Optional[int] = None,
